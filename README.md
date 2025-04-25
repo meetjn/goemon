@@ -1,66 +1,146 @@
-## Foundry
+# Solidity Modular Plugin System with Vault Creation Plugin
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+The project uses Foundry framework for seamlessly working with solidity smart contracts and testing.
 
-Foundry consists of:
+## Overview
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+This project implements a modular plugin system in Solidity that allows for dynamic extension of functionality through plugins. The core architecture consists of:
 
-## Documentation
+- **Core Contract**: A central registry that manages plugins and provides dynamic dispatch capabilities
+- **Plugin Interface**: A standardized interface that all plugins must implement
+- **Example Plugins**:
+  - A simple plugin that multiplies input by a factor
+  - A vault creation plugin that creates and tracks vaults on-chain
 
-https://book.getfoundry.sh/
+## Requirements
 
-## Usage
+- [Foundry](https://getfoundry.sh/) - Ethereum development toolbox
+- Solidity ^0.8.19
 
-### Build
+## Project Structure
 
-```shell
-$ forge build
+```
+├── src/
+│   ├── Core.sol           # Main contract with plugin registry
+│   ├── IPlugin.sol        # Plugin interface definition
+│   ├── ExamplePlugin.sol  # Simple example plugin
+│   └── VaultPlugin.sol    # Vault creation plugin
+├── test/                  # Test files
+├── lib/                   # Dependencies (OpenZeppelin)
+└── foundry.toml           # Foundry configuration
 ```
 
-### Test
+## Setup Instructions
 
-```shell
-$ forge test
+1. **Clone the repository**
+
+```bash
+git clone <repository-url>
+cd goemon-assignment
 ```
 
-### Format
+2. **Install dependencies**
 
-```shell
-$ forge fmt
+Install Foundry if you haven't already:
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
 ```
 
-### Gas Snapshots
+Install project dependencies:
 
-```shell
-$ forge snapshot
+```bash
+forge install
 ```
 
-### Anvil
+## Compilation
 
-```shell
-$ anvil
+Compile the smart contracts with Foundry:
+
+```bash
+forge build
 ```
 
-### Deploy
+## Testing
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+Run the test suite:
+
+```bash
+forge test
 ```
 
-### Cast
+For verbose output:
 
-```shell
-$ cast <subcommand>
+```bash
+forge test -vvv
 ```
 
-### Help
+Check test coverage:
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+```bash
+forge coverage
 ```
+
+## Contract Overview
+
+### Core.sol
+
+The Core contract maintains a registry of plugins and enables dynamic dispatch to them:
+
+- **Registry Management**: Add, update, or remove plugins (owner-only)
+- **Dynamic Dispatch**: Execute functionality from registered plugins
+- **Access Control**: Uses OpenZeppelin's Ownable for permissions
+
+### IPlugin.sol
+
+Defines the standard interface that all plugins must implement:
+
+- `performAction(uint256 input) -> uint256`: The standard function all plugins implement
+
+### ExamplePlugin.sol
+
+A simple plugin implementation that multiplies input by a configurable factor:
+
+- Demonstrates the basic plugin architecture
+- Returns `input * multiplier`
+
+### VaultPlugin.sol
+
+A plugin that creates and manages vaults on-chain:
+
+- Creates unique vaults with owner and balance information
+- Returns the vault ID for future reference
+- Maintains registry of all created vaults
+
+## Usage Examples
+
+### Deploying the System
+
+1. Deploy the Core contract
+2. Deploy plugin contracts (ExamplePlugin and VaultPlugin)
+3. Register plugins with the Core contract (owner only)
+
+### Using Plugins
+
+Users can interact with plugins through the Core contract:
+
+```solidity
+// Execute example plugin with input 10
+uint256 result = core.executePlugin(examplePluginId, 10);
+
+// Create a vault with initial balance of 100
+uint256 vaultId = core.executePlugin(vaultPluginId, 100);
+```
+
+## Extending the System
+
+To create a new plugin:
+
+1. Create a contract that implements the IPlugin interface
+2. Deploy the plugin contract
+3. Register it with the Core contract
+
+## License
+
+This project is licensed under MIT.
