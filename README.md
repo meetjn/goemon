@@ -35,7 +35,7 @@ This project implements a modular plugin system in Solidity that allows for dyna
 1. **Clone the repository**
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/meetjn/goemon.git
 cd goemon-assignment
 ```
 
